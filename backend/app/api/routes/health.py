@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException
+from redis import Redis
 from sqlalchemy import text
 
+from app.core.config import get_settings
 from app.db.session import engine
 from app.services.storage import StorageService
 
 
 router = APIRouter()
+settings = get_settings()
 
 
 @router.get("/live")
@@ -32,9 +35,7 @@ def ready() -> dict:
         checks["minio"] = f"error: {exc}"
 
     try:
-        from app.services.progress import manager
-
-        manager._redis.connect().ping()
+        Redis.from_url(settings.redis_url).ping()
         checks["redis"] = "ok"
     except Exception as exc:  # noqa: BLE001
         checks["redis"] = f"error: {exc}"

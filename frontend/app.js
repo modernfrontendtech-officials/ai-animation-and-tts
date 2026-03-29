@@ -8,12 +8,54 @@
   const errorNode = document.getElementById("form-error");
   const apiBaseUrl = window.APP_CONFIG.apiBaseUrl;
 
+  function formatErrorPayload(payload) {
+    if (!payload) {
+      return "";
+    }
+    if (typeof payload === "string") {
+      return payload;
+    }
+    if (payload.detail) {
+      if (typeof payload.detail === "string") {
+        return payload.detail;
+      }
+      return JSON.stringify(payload.detail);
+    }
+    return JSON.stringify(payload);
+  }
+
   async function parseResponse(response) {
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || "Request failed.");
+      const rawText = await response.text();
+      let payload = null;
+      try {
+        payload = rawText ? JSON.parse(rawText) : null;
+      } catch (error) {
+        payload = rawText;
+      }
+      const detail = formatErrorPayload(payload);
+      throw new Error(
+        "Request failed (" +
+          response.status +
+          " " +
+          response.statusText +
+          ")" +
+          (detail ? ": " + detail : "")
+      );
     }
     return response.json();
+  }
+
+  function formatNetworkError(error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (message.includes("Failed to fetch")) {
+      return (
+        "Cannot reach the backend at " +
+        apiBaseUrl +
+        ". Check that the backend is running, the browser can access it, and CORS is configured correctly."
+      );
+    }
+    return message || "Failed to create job.";
   }
 
   form.addEventListener("submit", async function (event) {
@@ -39,7 +81,7 @@
       window.location.href = "./job.html?jobId=" + encodeURIComponent(payload.job.id);
     } catch (error) {
       errorNode.hidden = false;
-      errorNode.textContent = error instanceof Error ? error.message : "Failed to create job.";
+      errorNode.textContent = formatNetworkError(error);
       submitButton.disabled = false;
       submitButton.textContent = "Start Render Job";
     }

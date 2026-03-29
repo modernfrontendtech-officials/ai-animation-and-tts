@@ -18,6 +18,22 @@
   const manifestNode = document.getElementById("artifact-manifest");
   const videoNode = document.getElementById("artifact-video");
 
+  function formatErrorPayload(payload) {
+    if (!payload) {
+      return "";
+    }
+    if (typeof payload === "string") {
+      return payload;
+    }
+    if (payload.detail) {
+      if (typeof payload.detail === "string") {
+        return payload.detail;
+      }
+      return JSON.stringify(payload.detail);
+    }
+    return JSON.stringify(payload);
+  }
+
   if (!jobId) {
     titleNode.textContent = "Missing jobId";
     errorNode.hidden = false;
@@ -29,10 +45,36 @@
 
   async function parseResponse(response) {
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || "Request failed.");
+      const rawText = await response.text();
+      let payload = null;
+      try {
+        payload = rawText ? JSON.parse(rawText) : null;
+      } catch (error) {
+        payload = rawText;
+      }
+      const detail = formatErrorPayload(payload);
+      throw new Error(
+        "Request failed (" +
+          response.status +
+          " " +
+          response.statusText +
+          ")" +
+          (detail ? ": " + detail : "")
+      );
     }
     return response.json();
+  }
+
+  function formatNetworkError(error) {
+    const message = error instanceof Error ? error.message : String(error || "");
+    if (message.includes("Failed to fetch")) {
+      return (
+        "Cannot reach the backend at " +
+        apiBaseUrl +
+        ". Check that the backend is running and reachable from this browser."
+      );
+    }
+    return message || "Failed to load job.";
   }
 
   function updateJob(job) {
@@ -104,7 +146,7 @@
 
   fetchJob().catch(function (error) {
     errorNode.hidden = false;
-    errorNode.textContent = error instanceof Error ? error.message : "Failed to load job.";
+    errorNode.textContent = formatNetworkError(error);
   });
 
   setInterval(function () {

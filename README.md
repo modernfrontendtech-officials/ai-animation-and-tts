@@ -9,6 +9,8 @@ Self-hosted scaffold for a long-form AI video generation platform with:
 - Local model service interfaces for script, video, TTS, dubbing, and lip-sync
 - FFmpeg/MoviePy assembly seam
 - Static HTML/CSS/JavaScript frontend with live Socket.IO progress updates
+- Caddy reverse proxy for always-on hosting
+- Prometheus metrics scraping
 
 ## Structure
 
@@ -30,6 +32,8 @@ docker compose up --build
 - Frontend: `http://localhost:3000`
 - Backend docs: `http://localhost:8000/docs`
 - MinIO console: `http://localhost:9001`
+- Reverse proxy entrypoint: `http://localhost`
+- Prometheus: `http://localhost:9090`
 
 ## Current model status
 
@@ -48,10 +52,29 @@ The code is intentionally scaffolded around self-hosted model interfaces. The qu
 4. Worker emits progress events through Redis-backed Socket.IO rooms.
 5. Frontend listens live and updates the progress page.
 
+## 24/7 operations
+
+The stack now includes:
+
+- container restart policies via Docker Compose
+- backend liveness and readiness endpoints
+- persistent named volumes for Postgres, MinIO, Prometheus, Caddy, and backend artifacts
+- reverse proxy routing through Caddy
+- Prometheus scraping of backend metrics
+- Docker log rotation limits
+
+Health endpoints:
+
+- `GET /api/health/live`
+- `GET /api/health/ready`
+- `GET /api/metrics`
+
 ## Notes
 
 - `backend/app/services/local_models.py` is the main integration seam for your self-hosted models.
 - `backend/app/services/assembly.py` is where FFmpeg command generation lives.
 - `backend/app/tasks/pipeline.py` is the orchestration path to extend for chunked GPU rendering and retries.
 - `frontend/index.html` and `frontend/job.html` are now the active frontend pages.
-- `frontend/config.js` is where the browser-side API and socket endpoints are configured.
+- `frontend/config.js` auto-detects local-vs-proxied hosting for browser API calls.
+- `infra/Caddyfile` is the reverse proxy entrypoint for production-style hosting.
+- `infra/prometheus.yml` controls backend metrics scraping.
