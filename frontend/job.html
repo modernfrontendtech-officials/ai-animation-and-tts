@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Progress</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero-card">
+      <div class="eyebrow">Live Pipeline Status</div>
+      <h1 id="job-title">Job</h1>
+
+      <div class="progress-stack">
+        <div class="status-panel">
+          <div class="status-row"><span>Socket</span><strong id="socket-state">connecting</strong></div>
+          <div class="status-row"><span>Status</span><strong id="job-status">loading</strong></div>
+          <div class="status-row"><span>Stage</span><strong id="job-stage">starting</strong></div>
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          <p id="job-progress-text">0% complete</p>
+          <p id="job-error" class="error-text" hidden></p>
+        </div>
+
+        <div class="status-panel">
+          <h2>Latest Events</h2>
+          <ul id="event-list" class="event-list">
+            <li>Waiting for worker events...</li>
+          </ul>
+        </div>
+
+        <div class="status-panel">
+          <h2>Artifacts</h2>
+          <ul class="artifact-list">
+            <li>Preview page: <span id="artifact-preview">pending</span></li>
+            <li>Script manifest: <span id="artifact-script">pending</span></li>
+            <li>Job manifest: <span id="artifact-manifest">pending</span></li>
+            <li>Final video: <span id="artifact-video">pending</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="./job.js"></script>
+</body>
+</html>

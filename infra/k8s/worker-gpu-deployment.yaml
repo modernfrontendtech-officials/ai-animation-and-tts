@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-gpu
+  namespace: ai-video-factory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker-gpu
+  template:
+    metadata:
+      labels:
+        app: worker-gpu
+    spec:
+      nodeSelector:
+        accelerator: nvidia
+      containers:
+        - name: worker
+          image: ai-video-factory/backend:latest
+          command: ["celery", "-A", "app.celery_app.celery_app", "worker", "-Q", "gpu-jobs", "--loglevel=info"]
+          envFrom:
+            - secretRef:
+                name: ai-video-secrets
+          resources:
+            limits:
+              nvidia.com/gpu: "1"

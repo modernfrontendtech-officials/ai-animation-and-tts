@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Video Factory</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero-card">
+      <div class="eyebrow">Static Frontend</div>
+      <h1>AI Video Factory</h1>
+      <p class="lede">
+        Submit a long-form AI video render job, upload reference media, and follow the progress from a simple HTML frontend.
+      </p>
+
+      <form id="job-form" class="job-form">
+        <label>
+          Story prompt
+          <textarea id="prompt" rows="6" placeholder="Describe the film, style, pacing, and continuity." required></textarea>
+        </label>
+
+        <div class="grid-two">
+          <label>
+            Target language
+            <select id="target-language">
+              <option value="en">English</option>
+              <option value="hi">Hindi</option>
+              <option value="ta">Tamil</option>
+              <option value="te">Telugu</option>
+            </select>
+          </label>
+
+          <label>
+            Runtime in minutes
+            <input id="runtime-minutes" type="number" min="1" max="60" value="25">
+          </label>
+        </div>
+
+        <label>
+          Reference video or audio uploads
+          <input id="files" type="file" multiple>
+        </label>
+
+        <button id="submit-button" class="primary-button" type="submit">Start Render Job</button>
+        <p id="form-error" class="error-text" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
